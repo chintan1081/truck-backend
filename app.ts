@@ -58,7 +58,7 @@ async function mountFrontend(app: Express): Promise<void> {
   // FRONTEND_DIST can be set explicitly; defaults to the dist/ sibling of cwd.
   const distPath = process.env.FRONTEND_DIST || path.resolve(process.cwd(), "../dist");
   app.use(express.static(distPath));
-  app.get("*", (_req, res) => {
+  app.get("/{*splat}", (_req, res) => {
     res.sendFile(path.join(distPath, "index.html"));
   });
 }
