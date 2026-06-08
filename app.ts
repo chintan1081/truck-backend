@@ -1,5 +1,4 @@
-import path, { dirname } from "path";
-import { fileURLToPath } from "url";
+import path from "path";
 import cors from "cors";
 import express, { Express } from "express";
 import { config } from "./config/env";
@@ -55,9 +54,9 @@ async function mountFrontend(app: Express): Promise<void> {
     return;
   }
 
-  // Production: serve the Vite-built SPA from the same dist/ folder.
-  const __dirname = dirname(fileURLToPath(import.meta.url));
-  const distPath = __dirname;
+  // Production: serve the Vite-built SPA.
+  // FRONTEND_DIST can be set explicitly; defaults to the dist/ sibling of cwd.
+  const distPath = process.env.FRONTEND_DIST || path.resolve(process.cwd(), "../dist");
   app.use(express.static(distPath));
   app.get("*", (_req, res) => {
     res.sendFile(path.join(distPath, "index.html"));

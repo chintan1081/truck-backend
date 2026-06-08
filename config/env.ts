@@ -1,9 +1,8 @@
 import { configDotenv } from "dotenv";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-configDotenv({ path: resolve(__dirname, "../.env") });
+// In development load .env from the repo root (process.cwd() = server/).
+// On Render the env vars are injected by the dashboard; this call is a no-op.
+configDotenv();
 
 export type NodeEnv = "development" | "production" | "test";
 
@@ -17,7 +16,7 @@ const config = {
   isTest: nodeEnv === "test",
 
   http: {
-    port: Number(process.env.PORT),
+    port: Number(process.env.PORT) || 3000,
     host: process.env.HOST || "0.0.0.0",
   },
 
