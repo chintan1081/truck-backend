@@ -23,8 +23,12 @@ export async function createApp(): Promise<Express> {
   app.disable("x-powered-by");
   app.set("trust proxy", true);
 
+  const allowedOrigins = [
+    "http://localhost:5173",
+    "https://truck-frontend-ynnh.vercel.app",
+  ];
   app.use(cors({
-    origin: config.isProduction ? false : "http://localhost:5173",
+    origin: (origin, cb) => cb(null, !origin || allowedOrigins.includes(origin)),
     credentials: true,
   }));
 
