@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch index.ts",
-    "build": "esbuild index.ts --bundle --platform=node --format=esm --external:pg-native --external:sqlite3 --sourcemap --outfile=../dist/server.mjs",
+    "build": "esbuild index.ts --bundle --platform=node --format=esm --external:pg-native --external:sqlite3 --external:sqlite3 --external:better-sqlite3 --external:mysql --external:mysql2 --external:oracledb --external:mssql --external:mongodb --external:redis --external:ioredis --external:expo-sqlite --external:react-native-sqlite-storage --external:nativescript-sqlite --external:@sap/hana-client --external:hdb-pool --external:@google-cloud/spanner --external:sql.js --external:typeorm-aurora-data-api-driver --sourcemap --outfile=../dist/server.mjs",
     "start": "node ../dist/server.mjs",
     "type-check": "tsc --noEmit",
     "migration:generate": "tsx node_modules/typeorm/cli.js migration:generate -d db/cli-data-source.ts",
