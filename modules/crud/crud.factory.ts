@@ -3,6 +3,7 @@ import type { EntityTarget, ObjectLiteral } from "typeorm";
 import { asyncHandler } from "../../shared/async-handler";
 import { notFound } from "../../shared/http-error";
 import { parsePageParams } from "../../shared/pagination";
+import { applyColumnDefaults } from "../../shared/entity-defaults";
 import { validate, Schema } from "../../middleware/validate.middleware";
 
 export interface CrudOptions {
@@ -52,6 +53,7 @@ export function buildCrudRouter<T extends ObjectLiteral>(
       delete data.id;
       delete data.user;
       data.userId = req.user!.id;
+      applyColumnDefaults(repo, data);
       const saved = await repo.save(data as any);
       res.status(201).json(saved);
     })
@@ -69,6 +71,7 @@ export function buildCrudRouter<T extends ObjectLiteral>(
       delete body.userId;
       delete body.user;
       const merged = repo.merge(existing, body);
+      applyColumnDefaults(repo, merged as Record<string, unknown>);
       res.json(await repo.save(merged));
     })
   );

@@ -33,7 +33,8 @@ export async function createApp(): Promise<Express> {
   }));
 
   app.use(securityHeaders);
-  app.use(express.json({ limit: "5mb" }));
+  // 15mb so base64-encoded bill photos fit through the AI parse-bill endpoint.
+  app.use(express.json({ limit: "15mb" }));
   app.use(requestLogger);
 
   // --- API routes ---

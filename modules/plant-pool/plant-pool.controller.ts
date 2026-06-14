@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   PlantAdvancePoolEntryEntity, PaymentRecordEntity, ExpenseEntity, BankEntity, SiteEntity,
 } from "../../db/entities";
+import { applyColumnDefaults } from "../../shared/entity-defaults";
 import { HttpError } from "../../shared/http-error";
 
 export async function listPoolEntries(req: Request, res: Response): Promise<void> {
@@ -26,6 +27,7 @@ export async function createPoolEntry(req: Request, res: Response): Promise<void
     delete entry.id;
     delete entry.user;
     entry.userId = userId;
+    applyColumnDefaults(poolRepo, entry);
     const savedPool = await poolRepo.save(entry);
 
     const bank = entry.bankId ? await bRepo.findOne({ where: { id: entry.bankId, userId } }) : null;

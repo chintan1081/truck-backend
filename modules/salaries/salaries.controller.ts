@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { DriverSalaryEntity, EmployeeSalaryEntity, ExpenseEntity } from "../../db/entities";
+import { applyColumnDefaults } from "../../shared/entity-defaults";
 import { HttpError } from "../../shared/http-error";
 
 function paymentModeToExpenseMode(mode: string): string {
@@ -27,6 +28,7 @@ export async function createDriverSalary(req: Request, res: Response): Promise<v
     delete s.id;
     delete s.user;
     s.userId = userId;
+    applyColumnDefaults(salRepo, s);
     const savedSal = await salRepo.save(s);
 
     await expRepo.save({
@@ -72,6 +74,7 @@ export async function createEmployeeSalary(req: Request, res: Response): Promise
     delete s.id;
     delete s.user;
     s.userId = userId;
+    applyColumnDefaults(salRepo, s);
     const savedSal = await salRepo.save(s);
 
     await expRepo.save({

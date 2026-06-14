@@ -3,6 +3,7 @@ import type { DataSource } from "typeorm";
 import { In } from "typeorm";
 import { InvoiceEntity, OrderEntity } from "../../db/entities";
 import { parsePageParams } from "../../shared/pagination";
+import { applyColumnDefaults } from "../../shared/entity-defaults";
 import { badRequest, notFound, HttpError } from "../../shared/http-error";
 import { computeInvoiceTotals, summarisePaidAmount, deriveInvoiceStatus } from "./invoice-compute";
 
@@ -58,6 +59,7 @@ export async function createInvoice(req: Request, res: Response): Promise<void> 
     const { totals, paidAmount, status } = await buildInvoiceWithComputedTotals(req.db!, userId, payload);
     Object.assign(payload, totals, { paidAmount, status });
 
+    applyColumnDefaults(invRepo, payload);
     res.status(201).json(await invRepo.save(payload));
   } catch (err) {
     if (err instanceof HttpError) throw err;
@@ -81,6 +83,7 @@ export async function updateInvoice(req: Request, res: Response): Promise<void> 
     const { totals, paidAmount, status } = await buildInvoiceWithComputedTotals(req.db!, userId, merged);
     Object.assign(merged, totals, { paidAmount, status });
 
+    applyColumnDefaults(invRepo, merged);
     res.json(await invRepo.save(merged));
   } catch (err) {
     if (err instanceof HttpError) throw err;

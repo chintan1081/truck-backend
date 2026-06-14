@@ -49,3 +49,66 @@ export async function generateChatReply(messages: unknown): Promise<string> {
 
   return response.text ?? "";
 }
+
+/**
+ * Generates executive financial insights for the dashboard. The Gemini API key
+ * lives only on the server; the frontend calls this endpoint instead of Gemini.
+ */
+export async function generateFinancialInsights(data: unknown): Promise<string> {
+  if (!config.gemini.apiKey) {
+    return "The intelligence engine is currently offline (API key missing).";
+  }
+
+  const { GoogleGenAI } = await import("@google/genai");
+  const ai = new GoogleGenAI({ apiKey: config.gemini.apiKey });
+
+  const response = await ai.models.generateContent({
+    model: config.gemini.model,
+    contents:
+      "Analyze logistics financial data. Provide 3 high-impact executive insights on profitability, " +
+      `fuel efficiency, and accounts receivable aging: ${JSON.stringify(data)}. Keep it professional and concise.`,
+    config: { temperature: 0.7, topP: 0.95 },
+  });
+
+  return response.text ?? "No insights generated.";
+}
+
+/** OCRs a diesel bill photo and returns the extracted fields as JSON. */
+export async function parseDieselBillImage(base64Image: unknown): Promise<Record<string, unknown> | null> {
+  if (typeof base64Image !== "string" || base64Image.length === 0) {
+    throw badRequest("image (base64 string) is required.");
+  }
+  if (!config.gemini.apiKey) {
+    return null;
+  }
+
+  const { GoogleGenAI } = await import("@google/genai");
+  const ai = new GoogleGenAI({ apiKey: config.gemini.apiKey });
+
+  const response = await ai.models.generateContent({
+    model: config.gemini.model,
+    contents: {
+      parts: [
+        { inlineData: { mimeType: "image/jpeg", data: base64Image } },
+        { text: "Extract strictly: Petrol Pump Name, Liters, Rate per Liter, Total Amount. Return JSON format only." },
+      ],
+    },
+    config: { responseMimeType: "application/json" },
+  });
+
+  try {
+    return JSON.parse(response.text?.trim() || "{}");
+  } catch {
+    return null;
+  }
+}
+
+/** True when a Gemini error is a rate-limit/quota exhaustion. */
+export function isQuotaError(err: unknown): boolean {
+  const e = err as { status?: unknown; message?: unknown } | null;
+  return (
+    e?.status === "RESOURCE_EXHAUSTED" ||
+    e?.status === 429 ||
+    (typeof e?.message === "string" && e.message.includes("429"))
+  );
+}

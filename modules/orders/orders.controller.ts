@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { OrderEntity, TruckEntity, DriverEntity } from "../../db/entities";
 import { parsePageParams } from "../../shared/pagination";
+import { applyColumnDefaults } from "../../shared/entity-defaults";
 import { badRequest, conflict, notFound, HttpError } from "../../shared/http-error";
 import { assertTransition, TripStatus } from "../../shared/order-status";
 
@@ -54,6 +55,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
       if (oData.status === "CREATED") oData.status = "ASSIGNED";
     }
 
+    applyColumnDefaults(oRepo, oData);
     res.status(201).json(await oRepo.save(oData));
   } catch (err) {
     if (err instanceof HttpError) throw err;
@@ -81,7 +83,7 @@ export async function updateOrder(req: Request, res: Response): Promise<void> {
       assertTransition(originalOrder.status as TripStatus, oData.status as TripStatus);
     }
 
-    if (originalOrder.assignedTruckId && originalOrder.assignedTruckId !== oData.assignedTruckId) {
+    if ("assignedTruckId" in oData && originalOrder.assignedTruckId && originalOrder.assignedTruckId !== oData.assignedTruckId) {
       const oldTruck = await tRepo.findOne({ where: { id: originalOrder.assignedTruckId, userId } });
       if (oldTruck) {
         oldTruck.status = "AVAILABLE";
@@ -101,6 +103,18 @@ export async function updateOrder(req: Request, res: Response): Promise<void> {
 
       truck.status = "ON_TRIP";
       await tRepo.save(truck);
+    }
+
+    // Once the trip is delivered (or further along), the truck is free for the
+    // next dispatch — without this it stays ON_TRIP forever.
+    const finalStatus = (oData.status ?? originalOrder.status) as string;
+    const finalTruckId = "assignedTruckId" in oData ? oData.assignedTruckId : originalOrder.assignedTruckId;
+    if (finalTruckId && ["DELIVERED", "INVOICED", "PAID"].includes(finalStatus)) {
+      const truck = await tRepo.findOne({ where: { id: finalTruckId, userId } });
+      if (truck && truck.status === "ON_TRIP") {
+        truck.status = "AVAILABLE";
+        await tRepo.save(truck);
+      }
     }
 
     oRepo.merge(originalOrder, oData);
