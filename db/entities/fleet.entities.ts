@@ -336,6 +336,9 @@ export class FuelSiteEntity extends OwnedEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
+  @Column({ type: "varchar", nullable: true })
+  trackingId?: string;
+
   @Column("varchar")
   companyName!: string;
 
@@ -366,11 +369,11 @@ export class FuelSiteEntity extends OwnedEntity {
   @Column("varchar")
   ifscCode!: string;
 
-  @Column("varchar")
-  bankName!: string;
+  @Column({ type: "varchar", nullable: true })
+  bankName?: string;
 
-  @Column("varchar")
-  upiId!: string;
+  @Column({ type: "varchar", nullable: true })
+  upiId?: string;
 }
 
 @Entity("fuel_transactions")
@@ -399,11 +402,11 @@ export class FuelTransactionEntity extends OwnedEntity {
   @Column("numeric")
   quantity!: number;
 
-  @Column("numeric")
-  rate!: number;
+  @Column("numeric", { nullable: true })
+  rate?: number;
 
-  @Column("numeric")
-  totalAmount!: number;
+  @Column("numeric", { nullable: true })
+  totalAmount?: number;
 
   @Column("varchar")
   date!: string;
@@ -411,8 +414,17 @@ export class FuelTransactionEntity extends OwnedEntity {
   @Column("varchar")
   time!: string;
 
-  @Column("numeric")
-  odometerReading!: number;
+  @Column("numeric", { nullable: true })
+  odometerReading?: number;
+
+  @Column("numeric", { nullable: true })
+  fuelLevelBefore?: number;
+
+  @Column("numeric", { nullable: true })
+  fuelLevelAfter?: number;
+
+  @Column({ type: "varchar", nullable: true })
+  slipUrl?: string;
 
   @Column({ type: "varchar", nullable: true })
   notes?: string;
@@ -424,8 +436,26 @@ export class FuelTransactionEntity extends OwnedEntity {
   paymentDate?: string;
 
   @Column({ type: "varchar", nullable: true })
+  paymentDueDate?: string;
+
+  @Column({ type: "varchar", nullable: true })
   paymentMode?: string;
 
   @Column({ type: "varchar", nullable: true })
   referenceNo?: string;
+
+  @Column({ type: "varchar", nullable: true })
+  tripId?: string;
+
+  @Column({ type: "varchar", nullable: true })
+  responsibleStaff?: string;
+
+  @Column({ type: "varchar", nullable: true })
+  fuelCategory?: string;
+
+  @Column({ type: "varchar", nullable: true })
+  bankId?: string;
+
+  @Column({ type: "varchar", nullable: true })
+  bankName?: string;
 }

@@ -165,16 +165,31 @@ export class AttendanceRecordEntity extends OwnedEntity {
   entityId!: string;
 
   @Column("varchar")
-  entityType!: string;
-
-  @Column("varchar")
   date!: string;
 
   @Column("varchar")
   status!: string;
 
   @Column({ type: "varchar", nullable: true })
-  remarks?: string;
+  checkIn?: string;
+
+  @Column({ type: "varchar", nullable: true })
+  checkOut?: string;
+
+  @Column({ type: "varchar", nullable: true })
+  notes?: string;
+
+  @Column({ type: "varchar", nullable: true })
+  shift?: string;
+
+  @Column({ type: "boolean", nullable: true })
+  isLate?: boolean;
+
+  @Column("numeric", { nullable: true })
+  overtimeHours?: number;
+
+  @Column({ type: "boolean", nullable: true })
+  locationVerified?: boolean;
 }
 
 @Entity("leave_requests")
@@ -186,13 +201,13 @@ export class LeaveRequestEntity extends OwnedEntity {
   entityId!: string;
 
   @Column("varchar")
-  entityType!: string;
-
-  @Column("varchar")
   startDate!: string;
 
   @Column("varchar")
   endDate!: string;
+
+  @Column({ type: "varchar", nullable: true })
+  type?: string;
 
   @Column("varchar")
   reason!: string;
@@ -201,10 +216,19 @@ export class LeaveRequestEntity extends OwnedEntity {
   status!: string;
 
   @Column({ type: "varchar", nullable: true })
-  approvedBy?: string;
+  appliedDate?: string;
+
+  @Column({ type: "boolean", nullable: true })
+  hasDocuments?: boolean;
+
+  @Column({ type: "boolean", nullable: true })
+  isPartialDay?: boolean;
 
   @Column({ type: "varchar", nullable: true })
-  note?: string;
+  partialSlot?: string;
+
+  @Column("numeric", { nullable: true })
+  balanceAtTime?: number;
 }
 
 @Entity("performance_metrics")
@@ -216,29 +240,44 @@ export class PerformanceMetricEntity extends OwnedEntity {
   entityId!: string;
 
   @Column("varchar")
-  entityType!: string;
+  date!: string;
 
-  @Column("varchar")
-  month!: string;
+  @Column("numeric", { default: 0 })
+  efficiencyScore!: number;
 
-  @Column("numeric")
-  tripsCompleted!: number;
+  @Column("numeric", { default: 0 })
+  tasksCompleted!: number;
 
-  @Column("numeric")
-  onTimeDeliveryRate!: number;
+  @Column("numeric", { default: 0 })
+  rating!: number;
 
-  @Column("numeric")
-  fuelEfficiencyScore!: number;
+  @Column({ type: "varchar", nullable: true })
+  feedback?: string;
 
-  @Column("numeric")
-  safetyRating!: number;
+  @Column("numeric", { nullable: true })
+  safetyIncidents?: number;
 
-  @Column("numeric")
-  attendanceRating!: number;
-
-  @Column("numeric")
-  overallScore!: number;
+  @Column("numeric", { nullable: true })
+  fuelEfficiencyScore?: number;
 
   @Column("simple-json", { nullable: true })
-  history?: any[];
+  skills?: string[];
+
+  @Column("numeric", { nullable: true })
+  kudosCount?: number;
+
+  @Column("numeric", { nullable: true })
+  goalsProgress?: number;
+
+  @Column("numeric", { nullable: true })
+  operationalEfficiency?: number;
+
+  @Column("numeric", { nullable: true })
+  safetyCompliance?: number;
+
+  @Column("numeric", { nullable: true })
+  loadCycleTiming?: number;
+
+  @Column("numeric", { nullable: true })
+  serviceRating?: number;
 }

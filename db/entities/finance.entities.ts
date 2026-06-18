@@ -234,20 +234,14 @@ export class StationRateEntity extends OwnedEntity {
   @Column("varchar")
   stationId!: string;
 
-  @Column("varchar")
-  materialName!: string;
-
-  @Column("numeric")
-  loadingRate!: number;
-
-  @Column("numeric")
-  unloadingRate!: number;
+  @Column("numeric", { default: 0 })
+  rate!: number;
 
   @Column({ type: "varchar", nullable: true })
-  remarks?: string;
+  dateAdded?: string;
 
   @Column({ type: "varchar", nullable: true })
-  stationName?: string;
+  notes?: string;
 }
 
 @Entity("bank_transactions")
@@ -314,6 +308,9 @@ export class PaymentRecordEntity extends OwnedEntity {
 
   @Column({ type: "varchar", nullable: true })
   transactionId?: string;
+
+  @Column({ type: "varchar", nullable: true })
+  chequeNo?: string;
 
   @Column("varchar")
   description!: string;

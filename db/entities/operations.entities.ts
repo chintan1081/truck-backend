@@ -154,23 +154,23 @@ export class ItemProductEntity extends OwnedEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
-  @Column("varchar")
-  name!: string;
-
-  @Column("varchar")
-  hsnCode!: string;
-
-  @Column("numeric")
-  gstRate!: number;
-
-  @Column("numeric")
-  defaultRate!: number;
-
-  @Column("varchar")
-  description!: string;
+  @Column({ type: "varchar", nullable: true })
+  trackingId?: string;
 
   @Column({ type: "varchar", nullable: true })
-  itemCode?: string;
+  productName?: string;
+
+  @Column({ type: "varchar", nullable: true })
+  productColour?: string;
+
+  @Column({ type: "varchar", nullable: true })
+  hsnSacCode?: string;
+
+  @Column("numeric", { default: 0 })
+  gstRate!: number;
+
+  @Column("simple-json", { nullable: true })
+  services?: string[];
 }
 
 @Entity("orders")
