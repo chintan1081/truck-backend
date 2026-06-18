@@ -60,8 +60,9 @@ async function mountFrontend(app: Express): Promise<void> {
   }
 
   // Production: serve the Vite-built SPA.
-  // FRONTEND_DIST can be set explicitly; defaults to the dist/ sibling of cwd.
-  const distPath = process.env.FRONTEND_DIST || path.resolve(process.cwd(), "../dist");
+  // FRONTEND_DIST can be set explicitly; defaults to server/public (the
+  // committed, pre-built SPA). cwd is the server/ dir in prod (node ../dist/server.mjs).
+  const distPath = process.env.FRONTEND_DIST || path.resolve(process.cwd(), "public");
   app.use(express.static(distPath));
   app.get("/{*splat}", (_req, res) => {
     res.sendFile(path.join(distPath, "index.html"));
