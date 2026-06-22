@@ -8,9 +8,9 @@
     "lib": ["ES2022"],
     "types": ["node"],
     "skipLibCheck": true,
-    "noEmit": true,
-    "resolveJsonModule": true
-  },
-  "include": ["./**/*.ts"],
-  "exclude": ["node_modules", "../node_modules", "../dist"]
+    "resolveJsonModule": true,
+
+    "noEmit": false,
+    "outDir": "./dist"
+  }
 }
