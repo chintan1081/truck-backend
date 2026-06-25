@@ -26,6 +26,7 @@ export async function createApp(): Promise<Express> {
   const allowedOrigins = [
     "http://localhost:5173",
     "https://truck-frontend-ynnh.vercel.app",
+    "https://strobe-shriek-unsoiled.ngrok-free.dev"
   ];
   app.use(cors({
     origin: (origin, cb) => cb(null, !origin || allowedOrigins.includes(origin)),
