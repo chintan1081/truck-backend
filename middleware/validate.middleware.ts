@@ -54,6 +54,10 @@ export function validate(schema: Schema, opts: { allowExtra?: boolean } = { allo
     const errors: Record<string, string> = {};
 
     for (const [field, rule] of Object.entries(schema)) {
+      if (rule.type === "number" && typeof body[field] === "string" && body[field] !== "") {
+        const coerced = Number(body[field]);
+        if (Number.isFinite(coerced)) body[field] = coerced;
+      }
       const err = checkValue(body[field], rule);
       if (err) errors[field] = err;
     }

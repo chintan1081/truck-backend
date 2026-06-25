@@ -4,6 +4,7 @@ import { DataSource } from "typeorm";
 import { config } from "../config/env";
 import { logger } from "../config/logger";
 import { ENTITIES } from "./entities";
+import { NumericCoercionSubscriber } from "./numeric-coercion.subscriber";
 
 let appDataSource: DataSource | null = null;
 let initPromise: Promise<DataSource> | null = null;
@@ -17,6 +18,7 @@ function buildDataSource(): DataSource {
     migrationsRun: false,
     logging: config.db.logging,
     entities: ENTITIES as any,
+    subscribers: [NumericCoercionSubscriber],
   });
 }
 
