@@ -24,11 +24,8 @@ export async function createApp(): Promise<Express> {
   app.disable("x-powered-by");
   app.set("trust proxy", 1);
 
-  const defaultOrigins = ["http://localhost:5173", "http://localhost:5174"];
-  const extraOrigins = process.env.CORS_ORIGINS?.split(",").map(s => s.trim()).filter(Boolean) ?? [];
-  const allowedOrigins = [...defaultOrigins, ...extraOrigins];
   app.use(cors({
-    origin: (origin, cb) => cb(null, !origin || allowedOrigins.includes(origin)),
+    origin: true,
     credentials: true,
   }));
 
