@@ -14,7 +14,7 @@ function buildDataSource(): DataSource {
     type: "postgres",
     url: config.db.url,
     schema: config.db.schema,
-    synchronize: true,
+    synchronize: !config.isProduction,
     migrationsRun: false,
     logging: config.db.logging,
     entities: ENTITIES as any,

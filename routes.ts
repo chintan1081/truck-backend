@@ -8,6 +8,7 @@ import { ordersRouter } from "./modules/orders/orders.routes";
 import { invoicesRouter } from "./modules/invoices/invoices.routes";
 import { plantPoolRouter } from "./modules/plant-pool/plant-pool.routes";
 import { driverSalaryRouter, employeeSalaryRouter } from "./modules/salaries/salaries.routes";
+import { driverPortalAdminRouter } from "./modules/driver-auth/driver-portal-admin.routes";
 import { registerCrudRoutes } from "./modules/crud/crud.registry";
 
 /**
@@ -37,6 +38,7 @@ export function buildApiRouter(): Router {
   router.use("/plant-pool", plantPoolRouter);
   router.use("/salaries", driverSalaryRouter);
   router.use("/employee-salaries", employeeSalaryRouter);
+  router.use("/drivers", driverPortalAdminRouter);
 
   // Generic CRUD entities.
   registerCrudRoutes((path, sub) => router.use(path, sub));

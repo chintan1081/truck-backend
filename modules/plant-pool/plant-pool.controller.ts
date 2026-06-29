@@ -4,6 +4,7 @@ import {
 } from "../../db/entities";
 import { applyColumnDefaults } from "../../shared/entity-defaults";
 import { HttpError } from "../../shared/http-error";
+import { nextSequenceValue } from "../../shared/sequence";
 
 export async function listPoolEntries(req: Request, res: Response): Promise<void> {
   try {
@@ -27,6 +28,7 @@ export async function createPoolEntry(req: Request, res: Response): Promise<void
     delete entry.id;
     delete entry.user;
     entry.userId = userId;
+    entry.entryNumber = await nextSequenceValue(req.db!, userId, "pool");
     applyColumnDefaults(poolRepo, entry);
     const savedPool = await poolRepo.save(entry);
 
@@ -44,7 +46,7 @@ export async function createPoolEntry(req: Request, res: Response): Promise<void
       bankId: entry.bankId,
       bankName: bank?.bankName || "Self",
       transactionId: entry.referenceNo,
-      description: `[POOL: ${savedPool.id}] Lifetime Advance ${entry.transactionType === "PAID" ? "Paid" : "Received"} for ${stationName}.`,
+      description: `[POOL: #${savedPool.entryNumber}] Lifetime Advance ${entry.transactionType === "PAID" ? "Paid" : "Received"} for ${stationName}.`,
       poolId: savedPool.id,
     });
 
@@ -57,7 +59,7 @@ export async function createPoolEntry(req: Request, res: Response): Promise<void
         paymentMode: entry.paymentMethod === "CASH" ? "CASH" : entry.paymentMethod === "UPI" ? "UPI" : "BANK",
         referenceNo: entry.referenceNo,
         vendorName: stationName,
-        description: `[POOL: ${savedPool.id}] Lifetime Advance Deposit to TPS: ${stationName}.`,
+        description: `[POOL: #${savedPool.entryNumber}] Lifetime Advance Deposit to TPS: ${stationName}.`,
         status: "APPROVED",
         paymentStatus: "PAID",
         paidDate: entry.date,
@@ -68,7 +70,7 @@ export async function createPoolEntry(req: Request, res: Response): Promise<void
           action: "PLANT_ADV_POOL_ADD",
           user: "System Admin",
           timestamp: new Date().toISOString().split("T")[0],
-          note: `Auto-posted from Plant Hub [${savedPool.id}]`,
+          note: `Auto-posted from Plant Hub [#${savedPool.entryNumber}]`,
         }],
       });
     }

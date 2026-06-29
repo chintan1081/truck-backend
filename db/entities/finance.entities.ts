@@ -195,6 +195,11 @@ export class PlantAdvancePoolEntryEntity extends OwnedEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
+  // Human-readable, per-tenant sequential number shown to end users instead
+  // of the UUID `id`. Assigned via shared/sequence.ts.
+  @Column({ type: "integer", nullable: true })
+  entryNumber?: number;
+
   @Column("varchar")
   stationId!: string;
 

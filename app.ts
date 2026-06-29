@@ -6,6 +6,7 @@ import { securityHeaders } from "./middleware/security.middleware";
 import { requestLogger } from "./middleware/request-logger.middleware";
 import { notFoundHandler, errorHandler } from "./middleware/error.middleware";
 import { authRouter } from "./modules/auth/auth.routes";
+import { driverAuthRouter } from "./modules/driver-auth/driver-auth.routes";
 import { chatRouter } from "./modules/chat/chat.routes";
 import { buildApiRouter } from "./routes";
 // Side-effect import: augments Express's Request type (req.user / req.db).
@@ -21,13 +22,11 @@ export async function createApp(): Promise<Express> {
   const app = express();
 
   app.disable("x-powered-by");
-  app.set("trust proxy", true);
+  app.set("trust proxy", 1);
 
-  const allowedOrigins = [
-    "http://localhost:5173",
-    "https://truck-frontend-ynnh.vercel.app",
-    "https://strobe-shriek-unsoiled.ngrok-free.dev"
-  ];
+  const defaultOrigins = ["http://localhost:5173", "http://localhost:5174"];
+  const extraOrigins = process.env.CORS_ORIGINS?.split(",").map(s => s.trim()).filter(Boolean) ?? [];
+  const allowedOrigins = [...defaultOrigins, ...extraOrigins];
   app.use(cors({
     origin: (origin, cb) => cb(null, !origin || allowedOrigins.includes(origin)),
     credentials: true,
@@ -40,6 +39,7 @@ export async function createApp(): Promise<Express> {
 
   // --- API routes ---
   app.use("/api/auth", authRouter);     // public (login/register)
+  app.use("/api/driver-auth", driverAuthRouter); // public driver-portal login; own auth, own JWT
   app.use("/api/chat", chatRouter);     // authenticated, no tenant DB
   app.use("/api", buildApiRouter());    // authenticated + tenant-scoped CRUD
   app.use("/api", notFoundHandler);     // 404 for unmatched API routes
@@ -62,7 +62,7 @@ async function mountFrontend(app: Express): Promise<void> {
 
   // Production: serve the Vite-built SPA.
   // FRONTEND_DIST can be set explicitly; defaults to server/public (the
-  // committed, pre-built SPA). cwd is the server/ dir in prod (node ../dist/server.mjs).
+  // committed, pre-built SPA). cwd is the server/ dir in prod (node dist/index.js).
   const distPath = process.env.FRONTEND_DIST || path.resolve(process.cwd(), "public");
   app.use(express.static(distPath));
   app.get("/{*splat}", (_req, res) => {

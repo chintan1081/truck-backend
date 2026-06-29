@@ -13,9 +13,11 @@ export * from "./fleet.entities";
 export * from "./operations.entities";
 export * from "./finance.entities";
 export * from "./hr.entities";
+export * from "./counter.entity";
 
 import { UserEntity } from "./user.entity";
 import { SettingsEntity, CustomAlertEntity } from "./system.entities";
+import { EntityCounterEntity } from "./counter.entity";
 import {
   TruckEntity,
   DriverEntity,
@@ -53,7 +55,7 @@ import {
 
 export const ENTITIES = [
   // system
-  SettingsEntity, CustomAlertEntity, UserEntity,
+  SettingsEntity, CustomAlertEntity, UserEntity, EntityCounterEntity,
   // fleet
   TruckEntity, DriverEntity, TruckEMIEntity, MaintenanceExpenseEntity, FuelSiteEntity, FuelTransactionEntity,
   // operations

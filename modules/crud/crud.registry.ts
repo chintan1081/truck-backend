@@ -1,7 +1,7 @@
 import type { Router } from "express";
 import type { EntityTarget, ObjectLiteral } from "typeorm";
 import { buildCrudRouter } from "./crud.factory";
-import { expenseCreateSchema } from "../../validation/schemas";
+import { expenseCreateSchema, expenseUpdateSchema } from "../../validation/schemas";
 import type { Schema } from "../../middleware/validate.middleware";
 import {
   TruckEntity, DriverEntity, ClientEntity, SiteEntity, RouteEntity, BrokerEntity,
@@ -16,6 +16,7 @@ interface CrudDefinition {
   entity: EntityTarget<ObjectLiteral>;
   resourceName: string;
   writeSchema?: Schema;
+  updateSchema?: Schema;
 }
 
 /**
@@ -24,7 +25,7 @@ interface CrudDefinition {
  * pool) are NOT listed here — they have dedicated modules.
  */
 export const CRUD_DEFINITIONS: CrudDefinition[] = [
-  { path: "expenses", entity: ExpenseEntity, resourceName: "expenses", writeSchema: expenseCreateSchema },
+  { path: "expenses", entity: ExpenseEntity, resourceName: "expenses", writeSchema: expenseCreateSchema, updateSchema: expenseUpdateSchema },
   { path: "fleet", entity: TruckEntity, resourceName: "fleet" },
   { path: "drivers", entity: DriverEntity, resourceName: "drivers" },
   { path: "clients", entity: ClientEntity, resourceName: "clients" },
@@ -50,6 +51,6 @@ export const CRUD_DEFINITIONS: CrudDefinition[] = [
 
 export function registerCrudRoutes(mount: (path: string, router: Router) => void): void {
   for (const def of CRUD_DEFINITIONS) {
-    mount(`/${def.path}`, buildCrudRouter(def.entity, def.resourceName, { writeSchema: def.writeSchema }));
+    mount(`/${def.path}`, buildCrudRouter(def.entity, def.resourceName, { writeSchema: def.writeSchema, updateSchema: def.updateSchema }));
   }
 }

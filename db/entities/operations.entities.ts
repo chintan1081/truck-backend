@@ -178,6 +178,11 @@ export class OrderEntity extends OwnedEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
+  // Human-readable, per-tenant sequential number shown to end users instead
+  // of the UUID `id` (e.g. "Order #4"). Assigned via shared/sequence.ts.
+  @Column({ type: "integer", nullable: true })
+  orderNumber?: number;
+
   @Column("varchar")
   clientName!: string;
 
@@ -276,6 +281,11 @@ export class OrderEntity extends OwnedEntity {
 
   @Column({ type: "varchar", nullable: true })
   driverPhone?: string;
+
+  // Set to PENDING when a truck/driver is assigned; the driver portal flips it
+  // to ACCEPTED/REJECTED. Independent of `status` (the trip lifecycle).
+  @Column({ type: "varchar", nullable: true })
+  driverAcceptanceStatus?: string;
 }
 
 @Entity("expenses")

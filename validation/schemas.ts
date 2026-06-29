@@ -14,8 +14,8 @@ export const orderCreateSchema: Schema = {
   pickupDate: { type: "iso-date", required: true },
   deliveryDate: { type: "iso-date", required: true },
   hasGST: { type: "boolean", required: true },
-  paymentTerms: { type: "string", required: true },
-  status: { type: "string", required: true, enum: TRIP_STATUSES },
+  paymentTerms: { type: "string" },
+  status: { type: "string", enum: TRIP_STATUSES },
   assignedTruckId: { type: "id" },
   assignedRouteId: { type: "id" },
   gstRate: { type: "number", min: 0, max: 100 },
@@ -33,7 +33,7 @@ export const invoiceCreateSchema: Schema = {
   date: { type: "iso-date", required: true },
   dueDate: { type: "iso-date", required: true },
   orderIds: { type: "string[]", required: true },
-  gstRate: { type: "number", required: true, min: 0, max: 100 },
+  gstRate: { type: "number", min: 0, max: 100 },
   gstType: { type: "string", required: true, enum: GST_TYPES },
   tdsAmount: { type: "number", min: 0 },
   discountAmount: { type: "number", min: 0 },
@@ -50,8 +50,12 @@ export const expenseCreateSchema: Schema = {
   date: { type: "iso-date", required: true },
   amount: { type: "number", required: true, min: 0 },
   paymentMode: { type: "string", required: true, enum: ["CASH", "BANK", "UPI", "CHEQUE"] as const },
-  vendorName: { type: "string", required: true },
-  description: { type: "string", required: true },
-  status: { type: "string", required: true, enum: EXPENSE_STATUSES },
-  paymentStatus: { type: "string", required: true, enum: ["PAID", "UNPAID"] as const },
+  vendorName: { type: "string" },
+  description: { type: "string" },
+  status: { type: "string", enum: EXPENSE_STATUSES },
+  paymentStatus: { type: "string", enum: ["PAID", "UNPAID"] as const },
 };
+
+export const expenseUpdateSchema: Schema = Object.fromEntries(
+  Object.entries(expenseCreateSchema).map(([k, v]) => [k, { ...v, required: false }])
+);

@@ -7,8 +7,11 @@ import { applyColumnDefaults } from "../../shared/entity-defaults";
 import { validate, Schema } from "../../middleware/validate.middleware";
 
 export interface CrudOptions {
-  /** Optional validation schema applied to POST and PUT bodies. */
+  /** Validation schema applied to POST bodies. */
   writeSchema?: Schema;
+  /** Validation schema applied to PUT bodies. If omitted but writeSchema is
+   *  provided, an all-optional version is derived automatically. */
+  updateSchema?: Schema;
 }
 
 /**
@@ -27,7 +30,12 @@ export function buildCrudRouter<T extends ObjectLiteral>(
   opts: CrudOptions = {}
 ): Router {
   const router = Router({ mergeParams: true });
-  const writeMw = opts.writeSchema ? [validate(opts.writeSchema)] : [];
+  const createMw = opts.writeSchema ? [validate(opts.writeSchema)] : [];
+  const derivedUpdateSchema = opts.updateSchema
+    ?? (opts.writeSchema
+      ? Object.fromEntries(Object.entries(opts.writeSchema).map(([k, v]) => [k, { ...v, required: false }]))
+      : undefined);
+  const updateMw = derivedUpdateSchema ? [validate(derivedUpdateSchema)] : [];
 
   router.get(
     "/",
@@ -45,7 +53,7 @@ export function buildCrudRouter<T extends ObjectLiteral>(
 
   router.post(
     "/",
-    ...writeMw,
+    ...createMw,
     asyncHandler(async (req: Request, res: Response) => {
       const repo = req.db!.getRepository(entity);
       const data = { ...req.body } as Record<string, unknown>;
@@ -61,7 +69,7 @@ export function buildCrudRouter<T extends ObjectLiteral>(
 
   router.put(
     "/:id",
-    ...writeMw,
+    ...updateMw,
     asyncHandler(async (req: Request, res: Response) => {
       const repo = req.db!.getRepository(entity);
       const existing = await repo.findOne({ where: { id: String(req.params.id), userId: req.user!.id } as any });

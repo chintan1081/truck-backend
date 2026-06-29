@@ -230,6 +230,17 @@ export class DriverEntity extends OwnedEntity {
 
   @Column("simple-json", { nullable: true })
   documents?: any[];
+
+  // Portal credentials are never returned by the generic CRUD find/update
+  // queries (select: false) — only the dedicated driver-auth module reads them.
+  @Column({ type: "varchar", nullable: true, select: false })
+  passwordHash?: string;
+
+  @Column({ type: "varchar", nullable: true, select: false })
+  passwordSalt?: string;
+
+  @Column({ type: "boolean", default: false })
+  portalAccessEnabled!: boolean;
 }
 
 @Entity("truck_emis")

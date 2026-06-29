@@ -4,6 +4,7 @@ import { parsePageParams } from "../../shared/pagination";
 import { applyColumnDefaults } from "../../shared/entity-defaults";
 import { badRequest, conflict, notFound, HttpError } from "../../shared/http-error";
 import { assertTransition, TripStatus } from "../../shared/order-status";
+import { nextSequenceValue } from "../../shared/sequence";
 
 export async function listOrders(req: Request, res: Response): Promise<void> {
   try {
@@ -32,6 +33,7 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
     delete oData.id;
     delete oData.user;
     oData.userId = userId;
+    oData.orderNumber = await nextSequenceValue(req.db!, userId, "order");
 
     if (oData.status !== "CREATED" && oData.status !== "ASSIGNED") {
       throw badRequest("New orders must start in CREATED or ASSIGNED status");
@@ -47,8 +49,11 @@ export async function createOrder(req: Request, res: Response): Promise<void> {
 
       oData.driverName = truck.driverName;
       oData.assignedTruckNumber = truck.truckNumber;
-      const driver = await dRepo.findOne({ where: { name: truck.driverName, userId } });
+      const driver = truck.assignedDriverId
+        ? await dRepo.findOne({ where: { id: truck.assignedDriverId, userId } })
+        : null;
       if (driver) oData.driverPhone = driver.phoneNumber;
+      oData.driverAcceptanceStatus = "PENDING";
 
       truck.status = "ON_TRIP";
       await tRepo.save(truck);
@@ -98,8 +103,11 @@ export async function updateOrder(req: Request, res: Response): Promise<void> {
 
       oData.driverName = truck.driverName;
       oData.assignedTruckNumber = truck.truckNumber;
-      const driver = await dRepo.findOne({ where: { name: truck.driverName, userId } });
+      const driver = truck.assignedDriverId
+        ? await dRepo.findOne({ where: { id: truck.assignedDriverId, userId } })
+        : null;
       if (driver) oData.driverPhone = driver.phoneNumber;
+      oData.driverAcceptanceStatus = "PENDING";
 
       truck.status = "ON_TRIP";
       await tRepo.save(truck);

@@ -4,12 +4,14 @@ import { config, assertProductionConfig } from "./config/env";
 import { logger } from "./config/logger";
 import { createApp } from "./app";
 import { getDataSource, closeDataSource } from "./db/data-source";
+import { backfillDisplayNumbers } from "./db/backfill-display-numbers";
 
 async function startServer(): Promise<void> {
   assertProductionConfig();
 
   // Initialise the database connection before accepting requests.
-  await getDataSource();
+  const db = await getDataSource();
+  await backfillDisplayNumbers(db);
 
   const app = await createApp();
   const server = app.listen(config.http.port, config.http.host, () => {
